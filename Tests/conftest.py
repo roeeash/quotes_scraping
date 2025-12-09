@@ -1,9 +1,19 @@
 import sqlite3
 
 import pytest
+from selenium import webdriver
+
 import storage
 from internal_types.Quote import Quote
 
+@pytest.fixture(scope="session")
+def driver():
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    driver = webdriver.Chrome(options=options)
+
+    yield driver
+    driver.close()
 
 @pytest.fixture(scope="session")
 def db():

@@ -7,16 +7,19 @@ from internal_types.Quote import Quote
 from utils import parse_quote_items
 
 
-def extract_quote_data_from_page_range(first_page: int, last_page: int) -> List[Quote]:
+def extract_quote_data_from_page_range(first_page: int, last_page: int, driver: webdriver.Chrome = None) -> List[Quote]:
     """
 
     :param first_page:
     :param last_page:
     :return:
     """
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    driver = webdriver.Chrome(options=options)
+    close_driver = False
+    if driver is None:
+        options = webdriver.ChromeOptions()
+        options.add_argument("--headless")
+        driver = webdriver.Chrome(options=options)
+        close_driver = True
 
     all_quotes = []
     for page in range(first_page, last_page + 1):
@@ -26,7 +29,8 @@ def extract_quote_data_from_page_range(first_page: int, last_page: int) -> List[
             quote_data_parts = quote_data.text.split("\n")
             quote = parse_quote_items(quote_data_parts=quote_data_parts)
             all_quotes.append(quote)
-    driver.quit()
+    if close_driver:
+        driver.quit()
     return all_quotes
 
 
