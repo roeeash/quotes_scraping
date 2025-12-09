@@ -91,7 +91,7 @@ pip install -r requirements.txt
 Running Storage Tests
 ---------------------
 ```
-pytest tests/test_storage.py -v -s
+pytest Tests/test_storage.py -v -s
 ```
 - Uses fixtures for an in-memory SQLite database.
 - Tests cover insertion, filtering, counting, and aggregations.
@@ -99,7 +99,7 @@ pytest tests/test_storage.py -v -s
 Running Extractor Tests
 -----------------------
 ```
-pytest tests/test_extractor.py -v -s
+pytest Tests/test_extractor.py -v -s
 ```
 - Uses headless Selenium fixture (`driver`) for scraping pages.
 - Tests cover extraction of quotes, checking `Quote` objects, and basic field validation.
