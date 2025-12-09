@@ -3,7 +3,7 @@ from typing import List
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-from types.Quote import Quote
+from internal_types.Quote import Quote
 from utils import parse_quote_items
 
 
@@ -22,9 +22,6 @@ def extract_quote_data_from_page(page:int) -> List[Quote]:
     return quotes
 
 
-
-
-
 def extract_quote_data_from_page_range(first_page: int, last_page: int) -> List[Quote]:
     all_quotes = []
 
@@ -36,6 +33,3 @@ def extract_quote_data_from_page_range(first_page: int, last_page: int) -> List[
     return all_quotes
 
 
-
-
-extract_quote_data_from_page_range(first_page=1, last_page=1)

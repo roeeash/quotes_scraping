@@ -1,6 +1,6 @@
 from typing import List
 
-from types.Quote import Quote
+from internal_types.Quote import Quote
 
 
 def parse_quote_items(quote_data_parts: List[str]) -> Quote:
