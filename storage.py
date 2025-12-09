@@ -4,7 +4,7 @@ from typing import List
 
 from internal_types.Quote import Quote
 
-conn = sqlite3.connect(":memory:")
+conn = sqlite3.connect(":memory:", check_same_thread=False)
 cursor = conn.cursor()
 
 def create_table():
