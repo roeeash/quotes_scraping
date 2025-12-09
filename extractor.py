@@ -9,6 +9,8 @@ from utils import parse_quote_items
 
 def extract_quote_data_from_page(page:int) -> List[Quote]:
     driver = webdriver.Chrome()
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
     driver.get(f"https://quotes.toscrape.com/page/{page}")
     quotes_data = driver.find_elements(By.XPATH, "(//div[@class='quote'])")
     quotes = []
@@ -31,5 +33,10 @@ def extract_quote_data_from_page_range(first_page: int, last_page: int) -> List[
             all_quotes.append(quotes)
 
     return all_quotes
+
+
+def scrape_all_quotes(first_page=1, last_page=10) -> List[Quote]:
+    return extract_quote_data_from_page_range(first_page, last_page)
+
 
 
