@@ -6,21 +6,20 @@ Project Documentation
 
 System Structure
 ----------------
-- Extractor module (`extractor.py`)
-  - Contains function to scrape quotes from https://quotes.toscrape.com.
-  - `extract_quote_data_from_page_range(first_page, last_page, driver=None)` scrapes a range of pages, 
-  and gets the following for each item:
-  - Quote text 
-  - Author name 
-  - List of tags 
-- Supports passing a `webdriver.Chrome` instance to enable headless testing.
+- **Extractor module (`extractor.py`)**
+  - Contains functions to scrape quotes from https://quotes.toscrape.com.
+  - `extract_quote_data_from_page_range(first_page, last_page, driver=None)` scrapes a range of pages and retrieves for each item:
+    - Quote text
+    - Author name
+    - List of tags
+  - Supports passing a `webdriver.Chrome` instance to enable headless testing.
 
-- Storage module (`storage.py`)
+- **Storage module (`storage.py`)**
   - Uses SQLite in-memory database (or optionally file-based).
   - Functions: `create_table()`, `insert_into_db()`, `select_all()`, `get_filtered_items()`, `select_count_all()`, `select_quotes_per_author()`, `select_quotes_per_tag()`.
   - Tags are stored as JSON arrays for flexible filtering.
 
-- API module (`main.py`)
+- **API module (`main.py`)**
   - FastAPI application exposing endpoints:
     - `/collect-data/{first_page}/{last_page}` — triggers scraping in a background task.
     - `/all-quotes` — returns all stored quotes.
@@ -29,17 +28,17 @@ System Structure
 
 Design Approach
 ---------------
-- Headless Selenium for scraping: avoids opening a browser during automated runs or tests.
-- BackgroundTasks in FastAPI: scraping runs asynchronously, avoiding blocking the API.
-- SQLite in-memory DB: lightweight, no external dependencies, suitable for testing and small-scale data.
-- JSON for tags: allows flexible filtering on multiple tags without a separate table.
+- Headless Selenium for scraping to avoid opening a browser during automated runs or tests.
+- BackgroundTasks in FastAPI for asynchronous scraping without blocking the API.
+- SQLite in-memory DB for lightweight, dependency-free storage, suitable for testing and small-scale data.
+- JSON for tags to allow flexible filtering on multiple tags without creating a separate table.
 
 Trade-offs / Limitations
 -----------------------
-- SQLite in-memory DB does not persist between app restarts. For persistence, a file-based SQLite or another database would be needed.
-- Scraping relies on the site structure; if it changes, the extractor will break.
-- Aggregations (count per tag/author) are done in SQL using JSON functions — efficient for small datasets, but may not scale to very large datasets.
-- Background scraping shares the same SQLite connection; careful threading management (`check_same_thread=False`) is necessary.
+- SQLite in-memory DB does not persist between app restarts; for persistence, a file-based SQLite or another database would be needed.
+- Scraping relies on the site structure; changes in the site may break the extractor.
+- Aggregations (count per tag/author) are done in SQL using JSON functions — efficient for small datasets, may not scale for very large datasets.
+- Background scraping shares the same SQLite connection; requires `check_same_thread=False` to avoid threading issues.
 
 2. Running the System
 --------------------
@@ -49,7 +48,7 @@ Start the API
 ```
 uvicorn main:app --reload
 ```
-- The app will automatically create the database table on startup.
+- Automatically creates the database table on startup.
 
 Trigger Scraping
 ----------------
@@ -58,7 +57,7 @@ Trigger Scraping
 ```
 GET http://127.0.0.1:8000/collect-data/1/5
 ```
-- This will start scraping pages 1–5 in the background. The response will immediately return:
+- Scraping runs in the background; immediate response:
 ```json
 {"status": "scraping started"}
 ```
@@ -82,7 +81,7 @@ GET http://127.0.0.1:8000/get-quotes?author=William+Shakespeare&tags=classic
 
 Requirements
 ------------
-- Install project requirements (which include `pytest`):
+- Install project requirements:
 ```
 pip install -r requirements.txt
 ```
@@ -106,7 +105,27 @@ pytest Tests/test_extractor.py -v -s
 
 Notes
 -----
-- The tests are isolated: the database is in-memory and reset for each test session.
-- The extractor tests reuse a single headless Chrome instance for efficiency using a custom
-pytest fixture.
+- Tests are isolated: the database is in-memory and reset for each test session.
+- Extractor tests reuse a single headless Chrome instance for efficiency using a custom pytest fixture.
+
+AWS Deployment (For Future Planning)
+-----------------------------------
+
+**Services:**
+- API: AWS API Gateway + AWS Lambda
+- Scraper: AWS Lambda for small-scale scraping (headless browser via container) or Fargate for heavier scraping tasks
+- Data Storage: Amazon RDS (PostgreSQL/MySQL)
+
+**Communication:**
+- API Gateway triggers the Lambda/Fargate tasks for scraping
+- Scraper writes data directly into RDS
+- API Lambda reads data from the same storage to serve requests
+
+**Triggering Scraping:**
+- Manual HTTP request to `/collect-data` endpoint via API Gateway
+- Or scheduled scraping using Amazon EventBridge (CloudWatch Events) for periodic execution
+
+**Scalability & Monitoring:**
+- Scalability: Lambda/Fargate auto-scaling; RDS can scale vertically or via read replicas
+- Monitoring: AWS CloudWatch to log scraping and API errors, monitor Lambda invocations, CPU/memory usage, and database performance
 
